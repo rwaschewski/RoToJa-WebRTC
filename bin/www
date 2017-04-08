@@ -6,20 +6,28 @@
 
 var app = require('../app');
 var debug = require('debug')('rotoja:server');
-var http = require('http');
+
+var fs = require('fs'),
+    express = require('express'),
+    https = require('https'),
+    http = require('http');
+
+
+var privateKey = fs.readFileSync('./public/javascripts/SimpleWebRTC/sslcerts/key.pem').toString(),
+    certificate = fs.readFileSync('./public/javascripts/SimpleWebRTC/sslcerts/cert.pem').toString();
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = https.createServer({key: privateKey, cert: certificate}, app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -28,6 +36,7 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+console.log('running on https://localhost:' + port);
 
 /**
  * Normalize a port into a number, string, or false.
